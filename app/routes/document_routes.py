@@ -38,7 +38,7 @@ def analyze_document():
         corrections = correction.file_correction(document_path)
         my_set_as_list = list(corrections)
         json_data = json.dumps(my_set_as_list)
-        return(json_data)
+        return json_data
 
     # Perform various analyses
     elif feature == "Verification":

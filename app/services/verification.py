@@ -90,9 +90,9 @@ def process_images(image_paths):
     return check_images_for_hashes(image_paths)
 
 
-def verification():
+def file_verification(file_path):
     # Text file processing
-    file_path = input("Enter the path to the text file (PDF, DOCX, TXT): ")
+    # file_path = input("Enter the path to the text file (PDF, DOCX, TXT): ")
     text_issues = process_text_file(file_path)
 
     # Image file processing

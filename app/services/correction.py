@@ -58,8 +58,8 @@ def process_file(file_path):
     return spelling_issues, grammar_issues
 
 
-def file_correction():
-    file_path = input("Enter the path to the file: ")
+def file_correction(file_path):
+    # file_path = input("Enter the path to the file: ")
     spelling_issues, grammar_issues = process_file(file_path)
 
     print("\nSpelling Issues:")
