@@ -42,8 +42,11 @@ def analyze_document():
 
     # Perform various analyses
     elif feature == "Verification":
-        verifications = verification.file_verification(document_path)
-        return jsonify(correction)
+        feature = data.get('feature')
+        image_path = data.get('image_path')
+        flagged_phrases = data.get('flagged_phrases')
+        verifications = verification.file_verification(document_path, image_path, flagged_phrases)
+        return jsonify(verifications)
 
     else:
         return "Feature Not Available"

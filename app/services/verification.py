@@ -5,14 +5,6 @@ import docx
 import cv2
 import numpy as np
 
-# Initial list of phrases/words to be flagged
-flagged_phrases = [
-    "explicit phrase",
-    "disclaimer",
-    "unnecessary promise",
-    "derogatory phrase"
-]
-
 # Placeholder for predefined image hashes or patterns
 predefined_hashes = {
     "icon1": np.array([123, 234, 345]),  # example hashes
@@ -21,41 +13,44 @@ predefined_hashes = {
 }
 
 
-# Function to add new phrases/words to be flagged
-def add_flagged_phrase(phrase):
-    flagged_phrases.append(phrase)
-
-
 def extract_text_from_pdf(file_path):
-    text = ""
+    text = []
     with open(file_path, "rb") as file:
-        reader = PyPDF2.PdfFileReader(file)
-        for page_num in range(reader.numPages):
-            text += reader.getPage(page_num).extract_text()
+        reader = PyPDF2.PdfReader(file)
+        num_pages = len(reader.pages)
+        for page_num in range(num_pages):
+            page_text = reader.pages[page_num].extract_text()
+            page_lines = page_text.splitlines()
+            text.extend([(line, page_num + 1) for line in page_lines])
     return text
 
 
 def extract_text_from_docx(file_path):
     doc = docx.Document(file_path)
-    text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+    text = [(paragraph.text, None) for paragraph in doc.paragraphs]
     return text
 
 
 def extract_text_from_txt(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
-        text = file.read()
+        lines = file.readlines()
+    text = [(line.strip(), None) for line in lines]
     return text
 
 
-def check_flagged_phrases(text):
+def check_flagged_phrases(text, flagged_phrases):
     issues = []
-    for phrase in flagged_phrases:
-        if re.search(rf"\b{re.escape(phrase)}\b", text, re.IGNORECASE):
-            issues.append(phrase)
+    for i, (line, page) in enumerate(text, start=1):
+        for phrase in flagged_phrases:
+            if re.search(rf"\b{re.escape(phrase)}\b", line, re.IGNORECASE):
+                if page:
+                    issues.append(f"Page {page}, Line {i}: {phrase}")
+                else:
+                    issues.append(f"Line {i}: {phrase}")
     return issues
 
 
-def process_text_file(file_path):
+def process_text_file(file_path, flagged_phrases):
     file_extension = os.path.splitext(file_path)[1].lower()
     if file_extension == ".pdf":
         text = extract_text_from_pdf(file_path)
@@ -66,7 +61,7 @@ def process_text_file(file_path):
     else:
         raise ValueError("Unsupported file format")
 
-    flagged_issues = check_flagged_phrases(text)
+    flagged_issues = check_flagged_phrases(text, flagged_phrases)
     return flagged_issues
 
 
@@ -90,13 +85,11 @@ def process_images(image_paths):
     return check_images_for_hashes(image_paths)
 
 
-def file_verification(file_path):
+def file_verification(file_path, image_paths=None, flagged_phrases=None):
     # Text file processing
-    # file_path = input("Enter the path to the text file (PDF, DOCX, TXT): ")
-    text_issues = process_text_file(file_path)
+    text_issues = process_text_file(file_path, flagged_phrases)
 
     # Image file processing
-    image_paths = input("Enter the paths to the images, separated by commas: ").split(',')
     image_issues = process_images(image_paths)
 
     # Combined issues
@@ -119,3 +112,14 @@ def file_verification(file_path):
             print(issue)
     else:
         print("No image issues found.")
+
+    return all_issues
+
+
+# Example usage
+# if _name_ == "_main_":
+#     file_path = "path/to/your/document.pdf"  # Change this to your file path
+#     image_paths = ["path/to/your/image1.png", "path/to/your/image2.jpg"]  # Change this to your image paths
+#     flagged_phrases = ["explicit phrase", "disclaimer", "unnecessary promise", "derogatory phrase"]
+#
+#     file_verification(file_path, image_paths, flagged_phrases)
