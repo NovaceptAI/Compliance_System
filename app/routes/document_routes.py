@@ -48,4 +48,8 @@ def analyze_document():
     else:
         return "Feature Not Available"
 
+
+@document_blueprint.route('/status', methods=['POST'])
+def app_status():
+    return "Working Absolutely Fine"
 # Additional routes can be added here for other functionalities
