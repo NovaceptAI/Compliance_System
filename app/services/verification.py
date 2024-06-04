@@ -67,17 +67,23 @@ def process_text_file(file_path, flagged_phrases):
 
 def compute_image_hash(image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        raise ValueError(f"Could not read image: {image_path}")
     resized = cv2.resize(image, (32, 32), interpolation=cv2.INTER_AREA)
     return cv2.img_hash.blockMeanHash(resized)
 
 
 def check_images_for_hashes(image_paths):
     issues = []
+    # print ("I am Here")
     for image_path in image_paths:
-        image_hash = compute_image_hash(image_path)
-        for name, predefined_hash in predefined_hashes.items():
-            if np.array_equal(image_hash, predefined_hash):
-                issues.append(f"Flagged Image: {name} in {image_path}")
+        try:
+            image_hash = compute_image_hash(image_path)
+            for name, predefined_hash in predefined_hashes.items():
+                if np.array_equal(image_hash, predefined_hash):
+                    issues.append(f"Flagged Image: {name} in {image_path}")
+        except ValueError as e:
+            issues.append(str(e))
     return issues
 
 
