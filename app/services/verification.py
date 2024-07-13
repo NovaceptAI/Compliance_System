@@ -92,11 +92,15 @@ def process_images(image_paths):
 
 
 def file_verification(file_path, image_paths=None, flagged_phrases=None):
+    text_issues = "No Text Issues"
+    image_issues = "No Image Issues"
     # Text file processing
-    text_issues = process_text_file(file_path, flagged_phrases)
+    if flagged_phrases:
+        text_issues = process_text_file(file_path, flagged_phrases)
 
     # Image file processing
-    image_issues = process_images(image_paths)
+    if image_paths:
+        image_issues = process_images(image_paths)
 
     # Combined issues
     all_issues = {
