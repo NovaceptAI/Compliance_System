@@ -73,12 +73,11 @@ def file_correction(file_path):
     spelling_issues, grammar_issues = process_file(file_path)
 
     issues = {
-        "spelling_issues": [],
         "grammar_issues": []
     }
 
-    for issue in spelling_issues:
-        issues["spelling_issues"].append({"line_number": issue["line_number"], "word": issue["word"]})
+    # for issue in spelling_issues:
+    #     issues["spelling_issues"].append({"line_number": issue["line_number"], "word": issue["word"]})
 
     for match in grammar_issues:
         grammar_issue = {

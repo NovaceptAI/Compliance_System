@@ -1,11 +1,12 @@
 # app/routes/document_routes.py
 
 from flask import Blueprint, request, jsonify, json
-from app.services import correction, verification
+from app.services import correction, verification, compliance
 import PyPDF2
-import boto3
+# import boto3
 import os
 import requests
+
 # Create a Blueprint for document-related routes
 document_blueprint = Blueprint('documents', __name__)
 
@@ -19,35 +20,44 @@ def download_file_from_s3(s3_url, local_path):
     else:
         raise ValueError(f"Unable to download file from S3. Status code: {response.status_code}")
 
+
 @document_blueprint.route('/upload', methods=['POST'])
 def upload_document():
-    # Check if the document is sent via a form with the name 'document'
-    file = request.files.get('document')
-    if not file:
-        # Check if the document path is sent via JSON
-        data = request.get_json()
-        s3_url = data.get('s3_url')
-        if not s3_url:
-            return jsonify({'error': 'No document uploaded or S3 URL provided'}), 400
-
-        # Extract the filename from the S3 URL
-        new_filename = os.path.basename(s3_url).replace(" ", "_")
-        filepath = os.path.join('app/tmp', new_filename)
-
-        # Download the file from the S3 URL
-        try:
-            download_file_from_s3(s3_url, filepath)
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    else:
+    # Check if the main document is sent via a form with the name 'document'
+    main_file = request.files.get('document')
+    if main_file:
         # Replace spaces in the file name with underscores
-        new_filename = file.filename.replace(" ", "_")
+        main_filename = main_file.filename.replace(" ", "_")
 
-        # Save the file temporarily with the modified file name
-        filepath = os.path.join('app/tmp', new_filename)
-        file.save(filepath)
+        # Save the main file temporarily with the modified file name
+        main_filepath = os.path.join('app/tmp', main_filename)
+        main_file.save(main_filepath)
+    else:
+        return jsonify({'message': 'Main document upload failed'}), 200
 
-    return jsonify({'message': 'Document uploaded successfully', 'filename': new_filename, 'path': filepath}), 200
+    # Check if the rule document is sent via a form with the name 'rule_document'
+    rule_file = request.files.get('rule_document')
+    if rule_file:
+        # Replace spaces in the file name with underscores
+        rule_filename = rule_file.filename.replace(" ", "_")
+
+        # Save the rule file under the rule_book folder with the modified file name
+        rule_filepath = os.path.join('app/rule_book', rule_filename)
+        rule_file.save(rule_filepath)
+
+        return jsonify({
+            'message': 'Documents uploaded successfully',
+            'main_filename': main_filename,
+            'main_path': main_filepath,
+            'rule_filename': rule_filename,
+            'rule_path': rule_filepath
+        }), 200
+    else:
+        return jsonify({
+            'message': 'Process Document uploaded successfully. No Rule File Added',
+            'main_filename': main_filename,
+            'main_path': main_filepath
+        }), 200
 
 
 @document_blueprint.route('/analyze', methods=['POST'])
@@ -56,21 +66,32 @@ def analyze_document():
     # For simplicity, let's assume the document's path is sent in JSON format
     data = request.get_json()
     document_path = data.get('document_path')
+
+    # Check if the document path is valid
+    if not os.path.exists(document_path):
+        return jsonify({'message': 'Document Not Found. Please re-upload'}), 404
+
     feature = data.get('feature')
     # Perform various analyses
     if feature == "Correction":
         corrections = correction.file_correction(document_path)
-        my_set_as_list = list(corrections)
-        json_data = json.dumps(my_set_as_list)
-        return json_data
+        return corrections
 
     # Perform various analyses
     elif feature == "Verification":
-        feature = data.get('feature')
         image_path = data.get('image_path')
         flagged_phrases = data.get('flagged_phrases')
         verifications = verification.file_verification(document_path, image_path, flagged_phrases)
         return jsonify(verifications)
+
+    # Perform various analyses
+    elif feature == "Compliance":
+        rules_filepath = "app/rules2.xlsx"
+        # Load rules
+        rules = compliance.load_rules_from_tabs(rules_filepath)
+        text = compliance.extract_text_from_pdf(document_path)
+        flagged_phrases = compliance.flag_triggers_in_text(text, rules)
+        return jsonify({'flagged_phrases': flagged_phrases})
 
     else:
         return "Feature Not Available"
@@ -80,3 +101,18 @@ def analyze_document():
 def app_status():
     return "Working Absolutely Fine"
 # Additional routes can be added here for other functionalities
+
+
+@document_blueprint.route('/count', methods=['POST'])
+def count():
+    data = request.get_json()
+    file_path = data.get('file_path')
+
+    spelling_issues, grammar_issues = correction.process_file(file_path)
+
+    count_data = {
+        "spelling_mistakes_count": len(spelling_issues),
+        "grammar_issues_count": len(grammar_issues),
+        "suggestions_count": sum(len(match.replacements[:5]) for match in grammar_issues)
+    }
+    return jsonify(count_data)
