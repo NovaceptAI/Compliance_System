@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EffyAI - Content Strategy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1><span class="effy">Effy</span><span class="ai">AI</span></h1>
+            </div>
+            <br>
+            <br>
+            <br>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li class="dropdown">
+                    <a href="#">Products <i class="fas fa-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="#">EffyAI-Video</a>
+                        <a href="#">EffyAI-Image</a>
+                        <a href="#">EffyAI-Dubbing</a>
+                        <a href="#">EffyAI-Avatar</a>
+                        <a href="#">EffyAI-Voice</a>
+                        <a href="#">EffyAI-Doc</a>
+                    </div>
+                </li>
+                <li><a href="#">Feature</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Blog</a></li>
+            </ul>
+            
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Unlock the Power of AI for Your Content Strategy with effyAI</h1>
+            <p>Introduction and overview of your AI-based content platform</p>
+            <button class="get-started-btn">Get Started</button>
+            <a href="#" class="contact-btn">CONTACT US</a>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='hero-image.png') }}" alt="EffyAI Hero Image">
+        </div>
+    </section>
+</body>
+
+<style>
+    body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to bottom, #ded0f8, #c5e4ff);
+}
+
+header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10%;
+        }
+
+header .logo h1 {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+header .logo {
+            margin-right: 50px; /* Adjust this value to increase/decrease the gap */
+        }
+
+header .logo .effy {
+    color: #000;
+}
+
+header .logo .ai {
+    color: #7644E6;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 0 15px;
+    position: relative;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.nav-links .dropdown {
+    position: relative;
+}
+
+.nav-links .dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    background: #fff;
+    top: 40px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 5px;
+}
+
+.nav-links .dropdown .dropdown-content a {
+    padding: 10px 15px;
+    display: block;
+    color: #333;
+    text-decoration: none;
+}
+
+.nav-links .dropdown .dropdown-content a:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-links .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.contact-btn {
+    background-color: #7644E6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contact-btn:hover {
+    background-color: #5a34b1;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 100px 10%;
+    margin-top: 60px;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.get-started-btn {
+    padding: 15px 30px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.get-started-btn:hover {
+    background-color: #5a34b1;
+}
+
+.hero-image img {
+    width: 500px;
+    height: auto;
+}
+
+</style>
+
+</html>
